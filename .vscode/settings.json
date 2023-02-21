@@ -1,0 +1,14 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    "prettier.useTabs": true,
+    "prettier.tabWidth": 4,
+    "prettier.trailingComma": "none",
+    "prettier.printWidth": 160,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    }
+}
