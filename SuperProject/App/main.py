@@ -1,5 +1,5 @@
-from database_helpers import *
-from scrape_helpers import *
+from App.database_helpers import *
+from App.scrape_helpers import *
 
 import pandas as pd
 import threading
