@@ -46,7 +46,7 @@ def insert_data(connection: sqlite3.Connection, data):
     """
 
     connection.execute(
-        'CREATE TABLE products (id INTEGER PRIMARY KEY, link TEXT, product_name TEXT, flat_price REAL, price_per_unit REAL)')
+        'CREATE TABLE products (id INTEGER PRIMARY KEY, shop TEXT, link TEXT, product_name TEXT, flat_price REAL, price_per_unit REAL)')
     connection.commit()
     data.to_sql('products', connection, if_exists='append', index=False)
 

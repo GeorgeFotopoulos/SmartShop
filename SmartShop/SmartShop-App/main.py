@@ -5,6 +5,7 @@ import pandas as pd
 import threading
 import time
 import queue
+import natsort
 
 categories = []
 database = 'database.db'
@@ -12,12 +13,14 @@ products = queue.Queue()
 start_time = time.time()
 landing_page = 'https://www.sklavenitis.gr/'
 categories_page = 'https://www.sklavenitis.gr/katigories/'
-data = pd.DataFrame(columns=['link', 'product_name',
+data = pd.DataFrame(columns=['shop', 'link', 'product_name',
                     'flat_price', 'price_per_unit'])
 
-scrape_categories(landing_page, categories_page, categories)
+""" scrape_categories(landing_page, categories_page, categories) """
 """ categories.append(
     'https://www.sklavenitis.gr/turokomika-futika-anapliromata/feta-leyka-tyria/') """
+categories.append(
+    'https://www.sklavenitis.gr/eidi-mias-chrisis-eidi-parti/eidi-parti/mpalonia-keria-genethlion-eidi-organosis-parti/')
 
 threads = []
 for category in categories:
@@ -32,7 +35,8 @@ for thread in threads:
 while not products.empty():
     new_row = pd.DataFrame([products.get()])
     data = pd.concat([data, new_row], ignore_index=True)
-data = data.sort_values(by=['price_per_unit'])
+data = data.iloc[natsort.index_humansorted(data['price_per_unit'])]
+""" data = data.sort_values(by=['price_per_unit']) """
 
 drop_database(database)
 connection = create_database_connection(database)

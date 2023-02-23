@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 
 import re
 import requests
+import unicodedata
 
 
 def scrape_categories(landing_page, categories_page, categories):
@@ -66,13 +67,22 @@ def scrape_data(prefix, products, product):
     product (BeautifulSoup): A particular product's soup variable, to extract the data from.
     """
 
+    if 'sklavenitis' in prefix:
+        shop = 'Σκλαβενίτης'
+    elif 'mymarket' in prefix:
+        shop = 'My Market'
+    else:
+        shop = 'ΑΒ Βασιλόπουλος'
+
     element = product.find('a', class_='absLink')['href']
     if element is not None:
         link = prefix + element
 
     element = product.find('h4', class_='product__title')
     if element is not None:
-        product_name = element.text
+        d = {ord('\N{COMBINING ACUTE ACCENT}'): None}
+        product_name = unicodedata.normalize(
+            'NFD', element.text).upper().translate(d)
 
     element = product.find('div', class_='price')
     if element is not None:
@@ -83,9 +93,11 @@ def scrape_data(prefix, products, product):
         price_per_unit = element.text
     else:
         element = product.find('div', class_='priceKil')
-        if element is not None:
+        if element and element.text.strip():
             price_per_unit = element.text
+        else:
+            price_per_unit = flat_price
 
-    new_row = {'link': link, 'product_name': product_name, 'flat_price': flat_price.strip(),
+    new_row = {'shop': shop, 'link': link, 'product_name': product_name, 'flat_price': flat_price.strip(),
                'price_per_unit': price_per_unit.strip()}
     products.put(new_row)

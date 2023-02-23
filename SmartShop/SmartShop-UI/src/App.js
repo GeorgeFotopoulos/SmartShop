@@ -1,16 +1,18 @@
 import "./App.css";
-import unorm from "unorm";
 import React, { useState, useEffect } from "react";
+import { ClipLoader } from "react-spinners";
 
 const { ipcRenderer, shell } = window.require("electron");
 
-const App = () => {
+const App = ({ onSearch }) => {
+	const [loading, setLoading] = useState(true); // set initial state to true to show loading animation on window load
 	const [databaseData, setDatabaseData] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	useEffect(() => {
 		ipcRenderer.on("database-data", (event, data) => {
 			setDatabaseData(data);
+			setLoading(false); // hide loading animation after data is loaded
 		});
 
 		return () => {
@@ -19,29 +21,53 @@ const App = () => {
 	}, []);
 
 	const handleSearch = (event) => {
-		const searchTermNormalized = unorm.nfd(event.target.value.toLowerCase().trim());
-		setSearchTerm(searchTermNormalized);
+		const value = event.target.value;
+		setSearchTerm(value);
+		onSearch(value);
 	};
 
-	const filteredData = databaseData.filter((row) => unorm.nfd(row.product_name.toLowerCase()).includes(searchTerm));
+	const clearSearch = () => {
+		setSearchTerm("");
+		onSearch("");
+	};
+
+	const filteredData = databaseData.filter((row) =>
+		searchTerm
+			.split(",")
+			.map((word) => word.trim().toLowerCase())
+			.every((word) => row.product_name.toLowerCase().includes(word))
+	);
 
 	return (
 		<div style={{ textAlign: "center" }}>
-			<input type="text" placeholder="Αναζήτηση..." onChange={handleSearch} />
-
+			<div className="search-field">
+				<input type="text" placeholder="Αναζήτηση..." value={searchTerm} onChange={handleSearch} />
+				{searchTerm.length > 0 && (
+					<button className="clear-search" onClick={clearSearch}>
+						Καθαρισμός
+					</button>
+				)}
+				{loading && (
+					<div className="loading-overlay">
+						<ClipLoader color={"#36D7B7"} size={150} />
+					</div>
+				)}
+			</div>
 			<table>
 				<thead>
 					<tr>
 						<th> Α/Α </th>
-						<th> ΠΡΟΪΟΝ</th>
-						<th> ΤΙΜΗ ΣΥΣΚΕΥΑΣΙΑΣ </th>
-						<th> ΤΙΜΗ ΑΝΑ ΜΟΝΑΔΑ </th>
+						<th> Κατάστημα </th>
+						<th> Προϊόν </th>
+						<th> Τιμή Συσκευασίας </th>
+						<th> Τιμή ανά μονάδα </th>
 					</tr>
 				</thead>
 				<tbody>
 					{filteredData.map((row) => (
 						<tr key={row.id}>
 							<td>{row.id}</td>
+							<td>{row.shop}</td>
 							<td>
 								<a
 									onClick={(event) => {
