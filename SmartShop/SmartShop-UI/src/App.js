@@ -36,6 +36,15 @@ const App = ({ onSearch }) => {
 		const value = event.target.value;
 		setSearchTerm(value);
 		setCurrentPage(0);
+		const pageLinks = document.getElementsByClassName("pagination__link");
+		pageLinks[0].classList.add("pagination__link--active");
+		for (let i = 1; i < pageLinks.length; i++) {
+			pageLinks[i].classList.remove("pagination__link--active");
+		}
+
+		// Simulate a click event on the first page that has the class name "pagination__link--active"
+		const activePageLink = document.querySelector(".pagination__link--active");
+		activePageLink && activePageLink.click();
 	};
 
 	const clearSearch = () => {
