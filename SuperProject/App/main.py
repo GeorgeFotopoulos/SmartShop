@@ -1,5 +1,5 @@
-from App.database_helpers import *
-from App.scrape_helpers import *
+from database_helpers import *
+from scrape_helpers import *
 
 import pandas as pd
 import threading
@@ -34,7 +34,7 @@ while not products.empty():
     data = pd.concat([data, new_row], ignore_index=True)
 
 connection = create_connection(database)
-drop_create_database(database)
+# drop_create_database(database)
 insert_data(connection, data)
 
 fetch_data_from_database(connection)
