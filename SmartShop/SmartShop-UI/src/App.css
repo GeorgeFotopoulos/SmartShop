@@ -49,20 +49,23 @@ input[type="text"] {
 	margin: 10px;
 	width: 25%;
 	box-sizing: border-box;
+	border-radius: 4px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 
 .clear-search {
 	font-size: large;
-	border: medium double black;
-	padding: 5px;
-	background: none;
+	border: medium double darkslategray;
+	padding: 8px 16px;
+	background: transparent;
 	color: black;
 	cursor: pointer;
-	outline: none;
+	border-radius: 4px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
 }
 
 .clear-search:hover {
-	color: red;
+	border: medium solid darkred;
 }
 
 .clear-search:focus {
