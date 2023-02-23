@@ -2,7 +2,19 @@ import os
 import sqlite3
 
 
-def create_connection(database):
+def drop_database(database):
+    """
+    Drops and recreates the database.
+
+    Parameters:
+    database (Literal): The database name.
+    """
+
+    if os.path.exists(database):
+        os.remove(database)
+
+
+def create_database_connection(database):
     """
     Creates connection to the database.
 
@@ -10,8 +22,7 @@ def create_connection(database):
     database (Literal): The database name.
     """
 
-    connection = sqlite3.connect(database)
-    return connection
+    return sqlite3.connect(database)
 
 
 def close_connection(connection: sqlite3.Connection):
@@ -23,18 +34,6 @@ def close_connection(connection: sqlite3.Connection):
     """
 
     connection.close()
-
-
-def drop_create_database(database):
-    """
-    Drops and recreates the database.
-
-    Parameters:
-    database (Literal): The database name.
-    """
-
-    if os.path.exists(database):
-        os.remove(database)
 
 
 def insert_data(connection: sqlite3.Connection, data):

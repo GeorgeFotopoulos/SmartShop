@@ -1,0 +1,15 @@
+{
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"editor.formatOnSave": true,
+	"javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+	"prettier.tabWidth": 4,
+	"prettier.useTabs": true,
+	"editor.detectIndentation": false,
+	"[css]": {
+	  "editor.tabSize": 4,
+	  "editor.insertSpaces": false,
+	  "editor.formatOnSave": true
+	}
+  }
+  

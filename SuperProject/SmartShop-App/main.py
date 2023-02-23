@@ -32,9 +32,10 @@ for thread in threads:
 while not products.empty():
     new_row = pd.DataFrame([products.get()])
     data = pd.concat([data, new_row], ignore_index=True)
+data = data.sort_values(by=['price_per_unit'])
 
-connection = create_connection(database)
-# drop_create_database(database)
+drop_database(database)
+connection = create_database_connection(database)
 insert_data(connection, data)
 
 fetch_data_from_database(connection)
