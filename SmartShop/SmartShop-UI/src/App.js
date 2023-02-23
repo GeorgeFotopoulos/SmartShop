@@ -27,7 +27,7 @@ const App = () => {
 
 	return (
 		<div style={{ textAlign: "center" }}>
-			<input type="text" placeholder="Search..." onChange={handleSearch} />
+			<input type="text" placeholder="Αναζήτηση..." onChange={handleSearch} />
 
 			<table>
 				<thead>
