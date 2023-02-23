@@ -1,18 +1,21 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
+import ReactPaginate from "react-paginate";
 
 const { ipcRenderer, shell } = window.require("electron");
 
 const App = ({ onSearch }) => {
-	const [loading, setLoading] = useState(true); // set initial state to true to show loading animation on window load
+	const [loading, setLoading] = useState(true);
 	const [databaseData, setDatabaseData] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [currentPage, setCurrentPage] = useState(0);
+	const [itemsPerPage, setItemsPerPage] = useState(20);
 
 	useEffect(() => {
 		ipcRenderer.on("database-data", (event, data) => {
 			setDatabaseData(data);
-			setLoading(false); // hide loading animation after data is loaded
+			setLoading(false);
 		});
 
 		return () => {
@@ -20,10 +23,19 @@ const App = ({ onSearch }) => {
 		};
 	}, []);
 
+	const filterData = () => {
+		return databaseData.filter((row) =>
+			searchTerm
+				.split(",")
+				.map((word) => word.trim().toLowerCase())
+				.every((word) => row.product_name.toLowerCase().includes(word))
+		);
+	};
+
 	const handleSearch = (event) => {
 		const value = event.target.value;
 		setSearchTerm(value);
-		onSearch(value);
+		setCurrentPage(0);
 	};
 
 	const clearSearch = () => {
@@ -31,12 +43,11 @@ const App = ({ onSearch }) => {
 		onSearch("");
 	};
 
-	const filteredData = databaseData.filter((row) =>
-		searchTerm
-			.split(",")
-			.map((word) => word.trim().toLowerCase())
-			.every((word) => row.product_name.toLowerCase().includes(word))
-	);
+	const handlePageChange = ({ selected }) => {
+		setCurrentPage(selected);
+	};
+
+	const filteredData = filterData().slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
 	return (
 		<div style={{ textAlign: "center" }}>
@@ -86,6 +97,22 @@ const App = ({ onSearch }) => {
 					))}
 				</tbody>
 			</table>
+			{filteredData.length > 0 && (
+				<ReactPaginate
+					previousLabel={"← Previous"}
+					nextLabel={"Next →"}
+					pageCount={Math.ceil(filterData().length / itemsPerPage)}
+					onPageChange={handlePageChange}
+					containerClassName={"pagination"}
+					pageClassName={"pagination__item"}
+					pageLinkClassName={"pagination__link"}
+					activeLinkClassName={"pagination__link--active"}
+					previousClassName={"pagination__prev"}
+					nextClassName={"pagination__next"}
+					disabledClassName={"pagination__link--disabled"}
+					getPageLinkClassName={({ selected }) => (selected === currentPage ? "pagination__link--active" : "pagination__link--inactive")}
+				/>
+			)}
 		</div>
 	);
 };

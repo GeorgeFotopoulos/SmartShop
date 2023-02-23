@@ -4,8 +4,8 @@ const sqlite3 = require("sqlite3").verbose();
 function createWindow() {
 	// Create the browser window.
 	const win = new BrowserWindow({
-		width: 800,
-		height: 600,
+		width: 1600,
+		height: 1000,
 		webPreferences: {
 			nodeIntegration: true,
 			contextIsolation: false
