@@ -16,11 +16,9 @@ categories_page = 'https://www.sklavenitis.gr/katigories/'
 data = pd.DataFrame(columns=['shop', 'link', 'product_name',
                     'flat_price', 'price_per_unit'])
 
-""" scrape_categories(landing_page, categories_page, categories) """
+scrape_categories(landing_page, categories_page, categories)
 """ categories.append(
     'https://www.sklavenitis.gr/turokomika-futika-anapliromata/feta-leyka-tyria/') """
-categories.append(
-    'https://www.sklavenitis.gr/eidi-mias-chrisis-eidi-parti/eidi-parti/mpalonia-keria-genethlion-eidi-organosis-parti/')
 
 threads = []
 for category in categories:
@@ -36,7 +34,6 @@ while not products.empty():
     new_row = pd.DataFrame([products.get()])
     data = pd.concat([data, new_row], ignore_index=True)
 data = data.iloc[natsort.index_humansorted(data['price_per_unit'])]
-""" data = data.sort_values(by=['price_per_unit']) """
 
 drop_database(database)
 connection = create_database_connection(database)
