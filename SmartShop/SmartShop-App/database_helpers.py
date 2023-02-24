@@ -1,13 +1,15 @@
 import os
 import sqlite3
 
+import pandas
+
 
 def drop_database(database):
     """
     Drops and recreates the database.
 
     Parameters:
-    database (Literal): The database name.
+        database (Literal): The database name.
     """
 
     if os.path.exists(database):
@@ -19,7 +21,10 @@ def create_database_connection(database):
     Creates connection to the database.
 
     Parameters:
-    database (Literal): The database name.
+        database (Literal): The database name.
+
+    Returns:
+        TODO
     """
 
     return sqlite3.connect(database)
@@ -30,19 +35,19 @@ def close_connection(connection: sqlite3.Connection):
     Closes the connection to the database.
 
     Parameters:
-    connection: The connection that was opened earlier.
+        connection: The connection that was opened earlier.
     """
 
     connection.close()
 
 
-def insert_data(connection: sqlite3.Connection, data):
+def insert_data(connection: sqlite3.Connection, data: pandas.DataFrame):
     """
     Inserts all data to the products table.
 
     Parameters:
-    database (Literal): The database name.
-    data (DataFrame): The data that will be saved in the database.
+        database (Literal): The database name.
+        data (DataFrame): The data that will be saved in the database.
     """
 
     connection.execute(
@@ -56,7 +61,7 @@ def delete_data(connection: sqlite3.Connection):
     Deletes all data from the products table.
 
     Parameters:
-    database (Literal): The database name.
+        database (Literal): The database name.
     """
 
     connection.execute('DELETE FROM products')
@@ -68,7 +73,7 @@ def fetch_data_from_database(connection: sqlite3.Connection):
     Fetches all data from products table.
 
     Parameters:
-    database (Literal): The database name.
+        database (Literal): The database name.
     """
 
     cursor = connection.execute("SELECT * FROM products")

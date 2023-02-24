@@ -1,8 +1,8 @@
-from openpyxl.utils import get_column_letter
-from openpyxl.utils.dataframe import dataframe_to_rows
+import os
 
 import openpyxl
-import os
+from openpyxl.utils import get_column_letter
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 
 def create_excel(data):
@@ -10,7 +10,7 @@ def create_excel(data):
     Creates an excel and saves it on Desktop folder.
 
     Parameters:
-    data (DataFrame): The data that will be saved in the Excel file.
+        data (DataFrame): The data that will be saved in the Excel file.
     """
     workbook = openpyxl.Workbook()
     worksheet = workbook.active

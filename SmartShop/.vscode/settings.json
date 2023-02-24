@@ -1,15 +1,32 @@
 {
 	"editor.tabSize": 4,
-	"editor.insertSpaces": false,
+	"editor.indentSize": 4,
+	"editor.useTabStops": true,
 	"editor.formatOnSave": true,
-	"javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-	"prettier.tabWidth": 4,
-	"prettier.useTabs": true,
-	"editor.detectIndentation": false,
+	"editor.formatOnType": true,
+	"editor.insertSpaces": false,
+	"editor.formatOnPaste": true,
+	"editor.detectIndentation": true,
+	"[python]": {
+		"editor.tabSize": 4,
+		"editor.indentSize": 4,
+		"editor.useTabStops": true,
+		"editor.formatOnSave": true,
+		"editor.formatOnType": true,
+		"editor.insertSpaces": false,
+		"editor.formatOnPaste": true,
+		"editor.detectIndentation": true,
+	},
 	"[css]": {
-	  "editor.tabSize": 4,
-	  "editor.insertSpaces": false,
-	  "editor.formatOnSave": true
-	}
-  }
-  
+		"editor.tabSize": 4,
+		"editor.indentSize": 4,
+		"editor.useTabStops": true,
+		"editor.formatOnSave": true,
+		"editor.formatOnType": true,
+		"editor.insertSpaces": false,
+		"editor.formatOnPaste": true,
+		"editor.detectIndentation": true,
+	},
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
+}
