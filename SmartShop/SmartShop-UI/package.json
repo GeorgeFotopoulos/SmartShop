@@ -1,11 +1,11 @@
 {
   "name": "smart-shop",
   "productName": "Smart Shop",
-  "version": "0.1.0",
-  "main": "public/main.js",
+  "version": "1.0.0",
+  "main": "public/electron.js",
   "private": true,
   "author": "George Fotopoulos",
-  "description": "My first attempt at a python & react-electron app",
+  "description": "Python & React/Electron app",
   "dependencies": {
     "@emotion/core": "^11.0.0",
     "@testing-library/jest-dom": "^5.16.5",
