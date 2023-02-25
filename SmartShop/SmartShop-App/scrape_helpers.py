@@ -1,3 +1,4 @@
+import random
 import re
 import time
 import unicodedata
@@ -7,6 +8,11 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+
+# Generate a random number between min_sleep and max_sleep
+min_sleep = 5
+max_sleep = 7
+sleep_time = random.randint(min_sleep, max_sleep)
 
 
 def scrape_categories(landing_page, categories_page) -> List[str]:
@@ -83,21 +89,21 @@ def scrape_data(prefix, products, product):
         shop = 'ΑΒ Βασιλόπουλος'
 
     element = product.find('a', class_='absLink')['href']
-    if element is not None:
+    if element:
         link = prefix + element
 
     element = product.find('h4', class_='product__title')
-    if element is not None:
+    if element:
         d = {ord('\N{COMBINING ACUTE ACCENT}'): None}
         product_name = unicodedata.normalize(
             'NFD', element.text).upper().translate(d)
 
     element = product.find('div', class_='price')
-    if element is not None:
+    if element:
         flat_price = element.text
 
     element = product.find('div', class_='hightlight')
-    if element is not None:
+    if element:
         price_per_unit = element.text
     else:
         element = product.find('div', class_='priceKil')
@@ -123,64 +129,48 @@ def scrape_categories_using_webdriver(landing_page) -> List[str]:
         TODO
     """
     categories = []
+    ignore_list = ["Νέα Προϊόντα", "Καλάθι", "κατοικίδια", "μωρό", "Προσφορές"]
 
     chrome_options = Options()
     chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-web-security')
+    chrome_options.add_argument('--disable-site-isolation-trials')
 
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(landing_page)
-    time.sleep(5)
+    time.sleep(sleep_time)
 
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
-    ul_mainNav = soup.find('ul', {'class': 'sc-44ggw0-1 eHEjAI'})
-    lis = ul_mainNav.find_all('li')
-    for li in lis:
-        a_tags = li.find_all('a')
-        for a in a_tags:
-            categories.append(landing_page+a['href'])
+    a_tags = [element for element in soup.find_all(
+        'a', class_='sc-bg1agw-1 fsOPpl') if not any(word in element.text for word in ignore_list)]
+    for a in a_tags:
+        categories.append(landing_page+a['href'])
 
     driver.quit()
     return categories
 
 
-def scrape_products2(prefix, category, products):
+def scrape_products_ab(prefix, category, products):
     """
     Iterates all pages within a category, necessary due to pagination.
     Breaks when there are no more product links provided.
 
     Parameters:
-        prefix (Literal): The category url that contains all objects that will be scraped for data.
+        prefix (Literal): The prefix to add to the url for each particular product.
         category (str): A particular category that will be parsed for all its products' data to be scraped.
         products (Queue): A queue to temporarily hold the data, because of thread locking.
     """
 
-    i = 1
-    has_products = True
+    html = load_and_scroll(category)
+    soup = BeautifulSoup(html, 'html.parser')
+    products_list = soup.find_all('div', {'class': 'sc-y4jrw3-2 bNyLGm'})
 
-    while has_products:
-        chrome_options = Options()
-        chrome_options.add_argument('--headless')
-
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.get(category + f"?pageNumber={i}")
-        time.sleep(5)
-
-        html = driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        products_list = soup.find('ul', {'class': 'sc-y4jrw3-4 eoGbNG'})
-
-        if not products_list:
-            has_products = False
-            continue
-
-        for product in products_list:
-            scrape_data(prefix, products, product)
-
-        i += 1
+    for product in products_list:
+        scrape_data_ab(prefix, products, product)
 
 
-def scrape_data(prefix, products, product):
+def scrape_data_ab(prefix, products, product):
     """
     Scrapes product link, name, flat price and price per unit.
 
@@ -190,37 +180,78 @@ def scrape_data(prefix, products, product):
         product (BeautifulSoup): A particular product's soup variable, to extract the data from.
     """
 
-    if 'sklavenitis' in prefix:
-        shop = 'Σκλαβενίτης'
-    elif 'mymarket' in prefix:
-        shop = 'My Market'
-    else:
-        shop = 'ΑΒ Βασιλόπουλος'
+    shop = 'ΑΒ Βασιλόπουλος'
 
-    element = product.find('a', class_='absLink')['href']
-    if element is not None:
+    element = product.find('a', class_='sc-y4jrw3-6 jSkhQP')['href']
+    if element:
         link = prefix + element
 
-    element = product.find('h4', class_='product__title')
-    if element is not None:
-        d = {ord('\N{COMBINING ACUTE ACCENT}'): None}
+    brand = product.find('a', class_='sc-y4jrw3-6 jSkhQP')
+    element = product.find('a', {'data-testid': 'product-block-name-link'})
+    d = {ord('\N{COMBINING ACUTE ACCENT}'): None}
+
+    if brand and brand.text.strip() not in ('', '-'):
+        product_name = f"{brand.text.strip()} - {unicodedata.normalize('NFD', element.text).upper().translate(d)}"
+    else:
         product_name = unicodedata.normalize(
             'NFD', element.text).upper().translate(d)
 
-    element = product.find('div', class_='price')
-    if element is not None:
+    flat_price = None
+    element = product.find('div', class_='sc-1qeaiy2-2 jRcVhQ')
+    if element and element.text.strip():
         flat_price = element.text
-
-    element = product.find('div', class_='hightlight')
-    if element is not None:
-        price_per_unit = element.text
     else:
-        element = product.find('div', class_='priceKil')
+        element = product.find('div', class_='sc-1qeaiy2-2 oTDWG')
+        if element:
+            flat_price = element.text
+
+    if flat_price is None:
+        return
+
+    element = product.find('div', class_='sc-1qeaiy2-3 jtuEVK')
+    if element and element.text.strip():
+        price_per_unit = element.text.replace('Ε', '€').replace(
+            '/ ', '/').replace('κιλ', 'κιλό').replace('λιτ', 'λίτρο').replace('τεμ', 'τεμ.').replace('μεζ', 'πλύση').replace('kg', 'κιλό').replace('~', '')
+        price_per_unit = re.sub(
+            r'(\d+),(\d) €/', r'\1,\g<2>0 €/', price_per_unit)
+
+    else:
+        element = product.find('div', class_='sc-1qeaiy2-3 dqIePs')
         if element and element.text.strip():
-            price_per_unit = element.text
+            price_per_unit = element.text.replace('Ε', '€').replace(
+                '/ ', '/').replace('κιλ', 'κιλό').replace('λιτ', 'λίτρο').replace('τεμ', 'τεμ.').replace('μεζ', 'πλύση').replace('kg', 'κιλό').replace('~', '')
+            price_per_unit = re.sub(
+                r'(\d+),(\d) €/', r'\1,\g<2>0 €/', price_per_unit)
+
         else:
             price_per_unit = flat_price
 
     new_row = {'shop': shop, 'link': link, 'product_name': product_name, 'flat_price': flat_price.strip(),
                'price_per_unit': price_per_unit.strip()}
     products.put(new_row)
+
+
+def load_and_scroll(url):
+    """ TODO """
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-web-security')
+    chrome_options.add_argument('--disable-site-isolation-trials')
+
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.get(url)
+
+    while True:
+        last_height = driver.execute_script(
+            'return document.body.scrollHeight')
+
+        driver.execute_script(
+            'window.scrollTo(0, document.body.scrollHeight);')
+
+        time.sleep(min_sleep)
+
+        new_height = driver.execute_script('return document.body.scrollHeight')
+        if new_height == last_height:
+            break
+
+    return driver.page_source
