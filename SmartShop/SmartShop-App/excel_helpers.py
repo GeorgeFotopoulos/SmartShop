@@ -18,7 +18,7 @@ def create_excel(data):
     for row in dataframe_to_rows(data, index=False, header=True):
         worksheet.append(row)
 
-    worksheet.auto_filter.ref = f'A1:{get_column_letter(data.shape[1])}1'
+    worksheet.auto_filter.ref = f"A1:{get_column_letter(data.shape[1])}1"
     for column in worksheet.columns:
         column_letter = get_column_letter(column[0].column)
         max_length = 0
@@ -28,9 +28,8 @@ def create_excel(data):
                     max_length = len(str(cell.value))
             except:
                 pass
-        adjusted_width = (max_length + 1)
+        adjusted_width = max_length + 1
         worksheet.column_dimensions[column_letter].width = adjusted_width
 
-    desktop_path = os.path.join(os.path.join(
-        os.environ['USERPROFILE']), 'Desktop')
-    workbook.save(desktop_path + '/products.xlsx')
+    desktop_path = os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop")
+    workbook.save(desktop_path + "/products.xlsx")

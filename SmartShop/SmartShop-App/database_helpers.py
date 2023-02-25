@@ -50,10 +50,9 @@ def insert_data(connection: sqlite3.Connection, data: pandas.DataFrame):
         data (DataFrame): The data that will be saved in the database.
     """
 
-    connection.execute(
-        'CREATE TABLE products (id INTEGER PRIMARY KEY, shop TEXT, link TEXT, product_name TEXT, flat_price REAL, price_per_unit REAL)')
+    connection.execute("CREATE TABLE products (id INTEGER PRIMARY KEY, shop TEXT, link TEXT, product_name TEXT, flat_price REAL, price_per_unit REAL)")
     connection.commit()
-    data.to_sql('products', connection, if_exists='append', index=False)
+    data.to_sql("products", connection, if_exists="append", index=False)
 
 
 def delete_data(connection: sqlite3.Connection):
@@ -64,23 +63,5 @@ def delete_data(connection: sqlite3.Connection):
         database (Literal): The database name.
     """
 
-    connection.execute('DELETE FROM products')
+    connection.execute("DELETE FROM products")
     connection.commit()
-
-
-def fetch_data_from_database(connection: sqlite3.Connection):
-    """
-    Fetches all data from products table.
-
-    Parameters:
-        database (Literal): The database name.
-    """
-
-    cursor = connection.execute("SELECT * FROM products")
-
-    """ rows = cursor.fetchall()
-    for row in rows:
-        print(row) """
-
-    cursor.close()
-    connection.close()
