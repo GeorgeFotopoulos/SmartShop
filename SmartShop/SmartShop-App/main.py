@@ -14,11 +14,12 @@ products = queue.Queue()
 start_time = time.time()
 landing_page = "https://www.sklavenitis.gr/"
 categories_page = "https://www.sklavenitis.gr/katigories/"
-data = pandas.DataFrame(columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
+data = pandas.DataFrame(
+    columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
 
 # Generate a random number between min_sleep and max_sleep
-min_sleep = 3
-max_sleep = 5
+min_sleep = 2
+max_sleep = 3
 sleep_time = random.randint(min_sleep, max_sleep)
 
 """ categories = scrape_helpers.scrape_categories(landing_page, categories_page)
@@ -49,8 +50,7 @@ for index, row in categories_df.iterrows():
         )
         time.sleep(sleep_time)
 
-exceptions_new = []
-scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products, exceptions_new)
+scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products)
 
 
 while not products.empty():
