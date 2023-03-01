@@ -12,6 +12,7 @@
 	"editor.wordWrapColumn": 160,
 	"editor.wordWrap": "bounded",
 	"editor.formatOnPaste": false,
+	"editor.mouseWheelZoom": true,
 	"files.trimFinalNewlines": true,
 	"editor.defaultFormatter": null,
 	"editor.detectIndentation": true,
