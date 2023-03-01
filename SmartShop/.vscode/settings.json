@@ -1,5 +1,6 @@
 {
 	"editor.tabSize": 4,
+	"editor.rulers": [160],
 	"editor.indentSize": 4,
     "prettier.tabWidth": 4,
 	"prettier.useTabs": true,
@@ -8,17 +9,18 @@
 	"editor.formatOnSave": true,
 	"editor.formatOnType": true,
 	"editor.insertSpaces": false,
-	"editor.formatOnPaste": false,
+	"editor.wordWrapColumn": 160,
+	"editor.wordWrap": "bounded",
+	"editor.formatOnPaste": true,
 	"files.trimFinalNewlines": true,
 	"editor.defaultFormatter": null,
 	"editor.detectIndentation": true,
     "prettier.trailingComma": "none",
 	"files.trimTrailingWhitespace": true,
-	"python.formatting.provider": "autopep8",
 	"editor.codeActionsOnSave": {
         "source.fixAll": true
 	},
 	"[javascript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	}
+	},
 }

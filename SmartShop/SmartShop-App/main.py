@@ -15,9 +15,7 @@ start_time = time.time()
 sleep_time = random.randint(2, 3)
 landing_page = "https://www.sklavenitis.gr/"
 categories_page = "https://www.sklavenitis.gr/katigories/"
-data = pandas.DataFrame(
-    columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
-
+data = pandas.DataFrame(columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
 
 """ categories = scrape_helpers.scrape_categories(landing_page, categories_page)
 
@@ -49,11 +47,9 @@ for index, row in categories_df.iterrows():
 
 scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products)
 
-
-while not products.empty():
-    new_row = pandas.DataFrame([products.get()])
-    data = pandas.concat([data, new_row], ignore_index=True)
-data = data.iloc[natsort.index_humansorted(data["price_per_unit"])]
+data = pandas.concat([pandas.DataFrame([products.get()]) for _ in range(products.qsize())], ignore_index=True).iloc[
+    natsort.index_humansorted(data["price_per_unit"])
+]
 
 database_helpers.drop_database(database)
 connection = database_helpers.create_database_connection(database)
