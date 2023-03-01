@@ -12,15 +12,12 @@ exceptions = []
 database = "database.db"
 products = queue.Queue()
 start_time = time.time()
+sleep_time = random.randint(2, 3)
 landing_page = "https://www.sklavenitis.gr/"
 categories_page = "https://www.sklavenitis.gr/katigories/"
 data = pandas.DataFrame(
     columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
 
-# Generate a random number between min_sleep and max_sleep
-min_sleep = 2
-max_sleep = 3
-sleep_time = random.randint(min_sleep, max_sleep)
 
 """ categories = scrape_helpers.scrape_categories(landing_page, categories_page)
 
