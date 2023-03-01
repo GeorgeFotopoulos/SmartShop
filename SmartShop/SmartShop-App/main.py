@@ -56,6 +56,4 @@ connection = database_helpers.create_database_connection(database)
 database_helpers.insert_data(connection, data)
 database_helpers.close_connection(connection)
 
-end_time = time.time()
-total_time = end_time - start_time
-print(f"Total runtime: {total_time} seconds")
+print(f"Total runtime: {time.time() - start_time} seconds")

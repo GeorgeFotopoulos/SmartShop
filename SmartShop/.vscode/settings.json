@@ -11,7 +11,7 @@
 	"editor.insertSpaces": false,
 	"editor.wordWrapColumn": 160,
 	"editor.wordWrap": "bounded",
-	"editor.formatOnPaste": true,
+	"editor.formatOnPaste": false,
 	"files.trimFinalNewlines": true,
 	"editor.defaultFormatter": null,
 	"editor.detectIndentation": true,
