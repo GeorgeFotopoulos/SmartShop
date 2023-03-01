@@ -1,4 +1,5 @@
 import queue
+import random
 import threading
 import time
 
@@ -7,12 +8,18 @@ import natsort
 import pandas
 import scrape_helpers
 
+exceptions = []
 database = "database.db"
 products = queue.Queue()
 start_time = time.time()
 landing_page = "https://www.sklavenitis.gr/"
 categories_page = "https://www.sklavenitis.gr/katigories/"
 data = pandas.DataFrame(columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
+
+# Generate a random number between min_sleep and max_sleep
+min_sleep = 3
+max_sleep = 5
+sleep_time = random.randint(min_sleep, max_sleep)
 
 """ categories = scrape_helpers.scrape_categories(landing_page, categories_page)
 
@@ -26,21 +33,25 @@ for category in categories:
 for thread in threads:
     thread.join() """
 
+categories_df = scrape_helpers.scrape_categories_ab(
+    "https://api.ab.gr/?operationName=LeftHandNavigationBar&variables={%22lang%22:%22gr%22}&extensions={%22persistedQuery%22:{%22version%22:1,%22sha256Hash%22:%2229a05b50daa7ab7686d28bf2340457e2a31e1a9e4d79db611fcee435536ee01c%22}}",
+)
 
-categories = scrape_helpers.scrape_categories_using_webdriver("https://www.ab.gr/")
+for index, row in categories_df.iterrows():
+    category = row["category"]
+    pages = row["pages"]
+    for page in range(0, pages - 1):
+        scrape_helpers.scrape_products_ab(
+            "https://www.ab.gr",
+            f"https://api.ab.gr/?operationName=GetCategoryProductSearch&variables={{%22category%22:%22{category}%22,%22pageNumber%22:{page}}}&extensions={{%22persistedQuery%22:{{%22version%22:1,%22sha256Hash%22:%227666accda68452ba9b05424ad98dec3cd402eacd9b896718a0a932975a0f405a%22}}}}",
+            products,
+            exceptions,
+        )
+        time.sleep(sleep_time)
 
-for category in categories:
-    scrape_helpers.scrape_products_ab("https://www.ab.gr/", category, products)
+exceptions_new = []
+scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products, exceptions_new)
 
-""" threads = []
-for category in categories:
-    thread = threading.Thread(target=scrape_helpers.scrape_products_ab, args=(
-        'https://www.ab.gr/', category, products))
-    threads.append(thread)
-    thread.start()
-
-for thread in threads:
-    thread.join() """
 
 while not products.empty():
     new_row = pandas.DataFrame([products.get()])
