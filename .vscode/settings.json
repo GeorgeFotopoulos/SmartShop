@@ -1,14 +1,20 @@
 {
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.python",
-        "editor.formatOnSave": true,
-        "editor.formatOnType": true
-    },
-    "prettier.useTabs": true,
+	"editor.tabSize": 4,
+	"editor.indentSize": 4,
     "prettier.tabWidth": 4,
-    "prettier.trailingComma": "none",
+	"prettier.useTabs": true,
     "prettier.printWidth": 160,
-    "editor.codeActionsOnSave": {
+	"editor.useTabStops": true,
+	"editor.formatOnSave": true,
+	"editor.formatOnType": true,
+	"editor.insertSpaces": false,
+	"files.trimFinalNewlines": true,
+	"editor.defaultFormatter": null,
+	"editor.detectIndentation": true,
+    "prettier.trailingComma": "none",
+	"files.trimTrailingWhitespace": true,
+	"python.formatting.provider": "black",
+	"editor.codeActionsOnSave": {
         "source.fixAll": true
-    }
+	},
 }
