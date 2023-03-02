@@ -7,20 +7,16 @@ import database_helpers
 import pandas as pd
 import scrape_helpers
 
+threads = []
 exceptions = []
 database = "database.db"
 products = queue.Queue()
 start_time = time.time()
-sleep_time = random.randint(2, 3)
-landing_page = "https://www.sklavenitis.gr/"
-categories_page = "https://www.sklavenitis.gr/katigories/"
 data = pd.DataFrame(columns=["code", "store", "link", "product_name", "flat_price", "price_per_unit", "metric_unit"])
 
-categories = scrape_helpers.scrape_categories(landing_page, categories_page)
-
-threads = []
+categories = scrape_helpers.scrape_categories("https://www.sklavenitis.gr/", "https://www.sklavenitis.gr/katigories/")
 for category in categories:
-    thread = threading.Thread(target=scrape_helpers.scrape_products, args=(landing_page, category, products))
+    thread = threading.Thread(target=scrape_helpers.scrape_products, args=("https://www.sklavenitis.gr/", category, products))
     threads.append(thread)
     thread.start()
 
@@ -41,12 +37,13 @@ for index, row in categories_df.iterrows():
             products,
             exceptions,
         )
-        time.sleep(sleep_time)
+        time.sleep(random.randint(2, 3))
 
 scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products)
 while not products.empty():
     data = pd.concat([data, pd.DataFrame(products.get(), index=[0])], ignore_index=True)
 data = data.sort_values("price_per_unit", ascending=True)
+data = data.drop_duplicates()
 
 database_helpers.drop_database(database)
 connection = database_helpers.create_database_connection(database)
