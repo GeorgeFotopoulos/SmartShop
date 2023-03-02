@@ -1,6 +1,5 @@
 ## Task List
 
--   Change _shop_ column name to _store_
 -   Add the product code column instead of a unique, incremental, Id
 -   Change the data type of columns price & price_per_unit to float
 -   Add a column to specify the metric unit for each product

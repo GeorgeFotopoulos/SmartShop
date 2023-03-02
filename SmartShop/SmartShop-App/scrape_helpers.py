@@ -54,7 +54,8 @@ def scrape_products(prefix, category, products):
     while has_products:
         response = requests.get(category + f"?pg={i}")
         soup = BeautifulSoup(response.content, "html.parser")
-        products_list = soup.find_all("div", class_=re.compile("^product prGa_"))
+        products_list = soup.find_all(
+            "div", class_=re.compile("^product prGa_"))
 
         if not products_list:
             has_products = False
@@ -77,9 +78,9 @@ def scrape_data(prefix, products, product):
     """
 
     if "sklavenitis" in prefix:
-        shop = "Σκλαβενίτης"
+        store = "Σκλαβενίτης"
     elif "mymarket" in prefix:
-        shop = "My Market"
+        store = "My Market"
 
     element = product.find("a", class_="absLink")["href"]
     if element:
@@ -88,7 +89,8 @@ def scrape_data(prefix, products, product):
     element = product.find("h4", class_="product__title")
     if element:
         d = {ord("\N{COMBINING ACUTE ACCENT}"): None}
-        product_name = unicodedata.normalize("NFD", element.text).upper().translate(d)
+        product_name = unicodedata.normalize(
+            "NFD", element.text).upper().translate(d)
 
     element = product.find("div", class_="price")
     if element:
@@ -104,7 +106,8 @@ def scrape_data(prefix, products, product):
         else:
             price_per_unit = flat_price
 
-    new_row = {"shop": shop, "link": link, "product_name": product_name, "flat_price": flat_price.strip(), "price_per_unit": price_per_unit.strip()}
+    new_row = {"store": store, "link": link, "product_name": product_name,
+               "flat_price": flat_price.strip(), "price_per_unit": price_per_unit.strip()}
     products.put(new_row)
 
 
@@ -123,10 +126,12 @@ def scrape_categories_ab(url):
     ignore_list = ["Νέα Προϊόντα", "Καλάθι", "κατοικίδια", "μωρό", "Προσφορές"]
     response = urlopen(url)
     data_json = json.loads(response.read())
-    data = [item for item in data_json["data"]["leftHandNavigationBar"]["levelInfo"] if not any(word in item.get("name") for word in ignore_list)]
+    data = [item for item in data_json["data"]["leftHandNavigationBar"]
+            ["levelInfo"] if not any(word in item.get("name") for word in ignore_list)]
 
     for entry in data:
-        categories.loc[len(categories)] = [entry["code"], math.ceil(entry["productCount"] / 50)]
+        categories.loc[len(categories)] = [entry["code"],
+                                           math.ceil(entry["productCount"] / 50)]
 
     return categories
 
@@ -144,7 +149,8 @@ def scrape_products_ab(landing_page, url, products, exceptions):
     try:
         response = urlopen(url)
         data_json = json.loads(response.read())
-        data = [item for item in data_json["data"]["categoryProductSearch"]["products"]]
+        data = [item for item in data_json["data"]
+                ["categoryProductSearch"]["products"]]
 
         for entry in data:
             price_per_unit = (
@@ -166,10 +172,12 @@ def scrape_products_ab(landing_page, url, products, exceptions):
                 .strip()
             )
 
+            product_name = entry["manufacturerName"] if entry["manufacturerName"] != "-" else ""
+
             new_row = {
-                "shop": "ΑΒ Βασιλόπουλος",
+                "store": "ΑΒ Βασιλόπουλος",
                 "link": landing_page + entry["url"],
-                "product_name": entry["name"],
+                "product_name": product_name + entry["name"],
                 "flat_price": entry["price"]["discountedPriceFormatted"].strip(),
                 "price_per_unit": price_per_unit,
             }
@@ -184,7 +192,8 @@ def scrape_product_exceptions_ab_recursive(exceptions, products):
     exceptions_new = []
     for url in exceptions:
         try:
-            scrape_products_ab("https://www.ab.gr", url, products, exceptions_new)
+            scrape_products_ab("https://www.ab.gr", url,
+                               products, exceptions_new)
         except (urllib.error.URLError, KeyError):
             exceptions.append(url)
 

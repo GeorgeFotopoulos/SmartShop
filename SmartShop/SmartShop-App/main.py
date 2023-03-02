@@ -15,7 +15,8 @@ start_time = time.time()
 sleep_time = random.randint(2, 3)
 landing_page = "https://www.sklavenitis.gr/"
 categories_page = "https://www.sklavenitis.gr/katigories/"
-data = pandas.DataFrame(columns=["shop", "link", "product_name", "flat_price", "price_per_unit"])
+data = pandas.DataFrame(
+    columns=["store", "link", "product_name", "flat_price", "price_per_unit"])
 
 """ categories = scrape_helpers.scrape_categories(landing_page, categories_page)
 

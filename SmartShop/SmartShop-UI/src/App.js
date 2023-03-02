@@ -1,7 +1,7 @@
-import "./App.css";
-import React, { useState, useEffect } from "react";
-import { ClipLoader } from "react-spinners";
+import React, { useEffect, useState } from "react";
 import ReactPaginate from "react-paginate";
+import { ClipLoader } from "react-spinners";
+import "./App.css";
 
 const { ipcRenderer, shell } = window.require("electron");
 
@@ -87,7 +87,7 @@ const App = ({ onSearch }) => {
 					{filteredData.map((row) => (
 						<tr key={row.id}>
 							<td>{row.id}</td>
-							<td>{row.shop}</td>
+							<td>{row.store}</td>
 							<td>
 								<a
 									onClick={(event) => {
