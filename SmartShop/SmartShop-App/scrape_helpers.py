@@ -77,10 +77,10 @@ def scrape_data(prefix, products, product):
         product (BeautifulSoup): A particular product's soup variable, to extract the data from.
     """
 
-    if "sklavenitis" in prefix:
-        store = "Σκλαβενίτης"
-    elif "mymarket" in prefix:
-        store = "My Market"
+    element = product.find(
+        "div", class_="icon-fav icon-cartFav")["data-productsku"]
+    if element:
+        code = element
 
     element = product.find("a", class_="absLink")["href"]
     if element:
@@ -88,26 +88,36 @@ def scrape_data(prefix, products, product):
 
     element = product.find("h4", class_="product__title")
     if element:
-        d = {ord("\N{COMBINING ACUTE ACCENT}"): None}
-        product_name = unicodedata.normalize(
-            "NFD", element.text).upper().translate(d)
+        product_name = element.text.replace("\n", "")
 
     element = product.find("div", class_="price")
     if element:
-        flat_price = element.text
+        flat_price = element.text.split()[0].replace(",", ".").strip()
 
     element = product.find("div", class_="hightlight")
     if element:
         price_per_unit = element.text
     else:
         element = product.find("div", class_="priceKil")
-        if element and element.text.strip():
+        if element and element.text:
             price_per_unit = element.text
         else:
             price_per_unit = flat_price
 
-    new_row = {"store": store, "link": link, "product_name": product_name,
-               "flat_price": flat_price.strip(), "price_per_unit": price_per_unit.strip()}
+    if price_per_unit:
+        try:
+            parts = price_per_unit.replace("~", "").strip().split()
+            price_per_unit = float(parts[0].replace(",", ".").strip())
+            metric_unit = parts[1].strip()
+        except (ValueError, IndexError):
+            price_per_unit = None
+            metric_unit = None
+    else:
+        price_per_unit = 0.00
+        metric_unit = None
+
+    new_row = {"code": code, "store": "Σκλαβενίτης", "link": link, "product_name": product_name,
+               "flat_price": flat_price, "price_per_unit": price_per_unit, "metric_unit": metric_unit}
     products.put(new_row)
 
 
@@ -158,7 +168,7 @@ def scrape_products_ab(landing_page, url, products, exceptions):
                     r"(\d+),(\d) €/",
                     r"\1,\g<2>0 €/",
                     entry["price"]["discountedUnitPriceFormatted"]
-                    if entry["price"]["discountedPriceFormatted"] != entry["price"]["unitPriceFormatted"]
+                    if entry["price"]["discountedPriceFormatted"] is not None and entry["price"]["discountedPriceFormatted"].replace("€", "") != entry["price"]["unitPriceFormatted"]
                     else entry["price"]["supplementaryPriceLabel1"],
                 )
                 .replace("Ε", "€")
@@ -169,21 +179,34 @@ def scrape_products_ab(landing_page, url, products, exceptions):
                 .replace("μεζ", "πλύση")
                 .replace("kg", "κιλό")
                 .replace("~", "")
-                .strip()
             )
 
-            product_name = entry["manufacturerName"] if entry["manufacturerName"] != "-" else ""
+            product_name = entry["manufacturerName"] + \
+                " " if entry["manufacturerName"] != "-" else ""
+
+            if price_per_unit:
+                try:
+                    parts = price_per_unit.strip().split()
+                    price_per_unit = float(parts[0].replace(",", ".").strip())
+                    metric_unit = parts[1].strip()
+                except (ValueError, IndexError):
+                    price_per_unit = None
+                    metric_unit = None
+            else:
+                price_per_unit = 0.00
+                metric_unit = None
 
             new_row = {
+                "code": entry["code"],
                 "store": "ΑΒ Βασιλόπουλος",
                 "link": landing_page + entry["url"],
                 "product_name": product_name + entry["name"],
-                "flat_price": entry["price"]["discountedPriceFormatted"].strip(),
+                "flat_price": entry["price"]["discountedPriceFormatted"].replace("€", "").replace(",", ".").replace("~", "").strip(),
                 "price_per_unit": price_per_unit,
+                "metric_unit": metric_unit
             }
             products.put(new_row)
     except urllib.error.URLError as e:
-        print("exception!")
         exceptions.append(url)
 
 

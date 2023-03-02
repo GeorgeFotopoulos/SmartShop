@@ -85,8 +85,8 @@ const App = ({ onSearch }) => {
 				</thead>
 				<tbody>
 					{filteredData.map((row) => (
-						<tr key={row.id}>
-							<td>{row.id}</td>
+						<tr key={row.code}>
+							<td>{row.code}</td>
 							<td>{row.store}</td>
 							<td>
 								<a
@@ -102,6 +102,7 @@ const App = ({ onSearch }) => {
 							</td>
 							<td>{row.flat_price}</td>
 							<td>{row.price_per_unit}</td>
+							<td>{row.metric_unit}</td>
 						</tr>
 					))}
 				</tbody>
