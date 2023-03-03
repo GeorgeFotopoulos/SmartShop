@@ -24,8 +24,7 @@ def scrape_categories(landing_page, categories_page) -> List[str]:
     """
 
     categories = []
-    ignore_list = ["vrefika", "thymiamatos",
-                   "katoikidia", "kava", "etoima-geymata"]
+    ignore_list = ["vrefika", "thymiamatos", "katoikidia", "etoima-geymata"]
     response = requests.get(categories_page)
     soup = BeautifulSoup(response.text, "html.parser")
     ul_mainNav = soup.find("ul", {"class": "mainNav_ul"})
@@ -154,7 +153,7 @@ def scrape_categories_ab(url):
     """
 
     categories = pandas.DataFrame(columns=["category", "pages"])
-    ignore_list = ["Νέα Προϊόντα", "Καλάθι", "κατοικίδια", "μωρό", "Προσφορές"]
+    ignore_list = ["Νέα Προϊόντα", "Καλάθι", "κατοικίδια", "Προσφορές"]
     response = urlopen(url)
     data_json = json.loads(response.read())
     data = [item for item in data_json["data"]["leftHandNavigationBar"]
