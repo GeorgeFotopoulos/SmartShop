@@ -16,15 +16,16 @@ def scrape_categories(landing_page, categories_page) -> List[str]:
     Parses the categories within each store, in order to get the links to all categories.
 
     Parameters:
-        landing_page (Literal): Indicates the landing page of a particular store.
-        categories_page (Literal): Indicates the categories page within the website.
+            landing_page (Literal): Indicates the landing page of a particular store.
+            categories_page (Literal): Indicates the categories page within the website.
 
     Returns:
-        TODO
+            TODO
     """
 
     categories = []
-    ignore_list = ["vrefika", "thymiamatos", "katoikidia", "kava", "etoima-geymata"]
+    ignore_list = ["vrefika", "thymiamatos",
+                   "katoikidia", "kava", "etoima-geymata"]
     response = requests.get(categories_page)
     soup = BeautifulSoup(response.text, "html.parser")
     ul_mainNav = soup.find("ul", {"class": "mainNav_ul"})
@@ -46,9 +47,9 @@ def scrape_products(prefix, category, products):
     Breaks when there are no more product links provided.
 
     Parameters:
-        prefix (Literal): The category url that contains all objects that will be scraped for data.
-        category (str): A particular category that will be parsed for all its products' data to be scraped.
-        products (Queue): A queue to temporarily hold the data, because of thread locking.
+            prefix (Literal): The category url that contains all objects that will be scraped for data.
+            category (str): A particular category that will be parsed for all its products' data to be scraped.
+            products (Queue): A queue to temporarily hold the data, because of thread locking.
     """
 
     i = 1
@@ -57,7 +58,8 @@ def scrape_products(prefix, category, products):
     while has_products:
         response = requests.get(category + f"?pg={i}")
         soup = BeautifulSoup(response.content, "html.parser")
-        products_list = soup.find_all("div", class_=re.compile("^product prGa_"))
+        products_list = soup.find_all(
+            "div", class_=re.compile("^product prGa_"))
 
         if not products_list:
             has_products = False
@@ -74,12 +76,13 @@ def scrape_data(prefix, products, product):
     Scrapes product link, name, flat price and price per unit.
 
     Parameters:
-        prefix (Literal): The prefix to add to the url for each particular product.
-        products (Queue): A queue to temporarily hold the data, because of thread locking.
-        product (BeautifulSoup): A particular product's soup variable, to extract the data from.
+            prefix (Literal): The prefix to add to the url for each particular product.
+            products (Queue): A queue to temporarily hold the data, because of thread locking.
+            product (BeautifulSoup): A particular product's soup variable, to extract the data from.
     """
 
-    element = product.find("div", class_="icon-fav icon-cartFav")["data-productsku"]
+    element = product.find(
+        "div", class_="icon-fav icon-cartFav")["data-productsku"]
     if element:
         code = element
 
@@ -91,9 +94,17 @@ def scrape_data(prefix, products, product):
     if element:
         product_name = element.text.replace("\n", "")
 
+    starting_price = None
+    element = product.find("div", class_="deleted__price")
+    if element:
+        starting_price = element.text.replace(",", ".")
+
     element = product.find("div", class_="price")
     if element:
-        flat_price = element.text.split()[0].replace(",", ".").strip()
+        final_price = element.text.split()[0].replace(",", ".").strip()
+
+    if not starting_price:
+        starting_price = final_price
 
     element = product.find("div", class_="hightlight")
     if element:
@@ -103,7 +114,7 @@ def scrape_data(prefix, products, product):
         if element and element.text:
             price_per_unit = element.text
         else:
-            price_per_unit = flat_price
+            price_per_unit = final_price
 
     if price_per_unit:
         try:
@@ -122,9 +133,11 @@ def scrape_data(prefix, products, product):
         "store": "Σκλαβενίτης",
         "link": link,
         "product_name": product_name,
-        "flat_price": flat_price,
+        "starting_price": starting_price,
+        "final_price": final_price,
         "price_per_unit": price_per_unit,
         "metric_unit": metric_unit,
+        "discounted": 0 if starting_price == final_price else 1
     }
     products.put(new_row)
 
@@ -134,20 +147,22 @@ def scrape_categories_ab(url):
     Parses the categories within each store, in order to get the links to all categories.
 
     Parameters:
-        landing_page (Literal): Indicates the landing page of a particular store.
+            landing_page (Literal): Indicates the landing page of a particular store.
 
     Returns:
-        TODO
+            TODO
     """
 
     categories = pandas.DataFrame(columns=["category", "pages"])
     ignore_list = ["Νέα Προϊόντα", "Καλάθι", "κατοικίδια", "μωρό", "Προσφορές"]
     response = urlopen(url)
     data_json = json.loads(response.read())
-    data = [item for item in data_json["data"]["leftHandNavigationBar"]["levelInfo"] if not any(word in item.get("name") for word in ignore_list)]
+    data = [item for item in data_json["data"]["leftHandNavigationBar"]
+            ["levelInfo"] if not any(word in item.get("name") for word in ignore_list)]
 
     for entry in data:
-        categories.loc[len(categories)] = [entry["code"], math.ceil(entry["productCount"] / 50)]
+        categories.loc[len(categories)] = [entry["code"],
+                                           math.ceil(entry["productCount"] / 50)]
 
     return categories
 
@@ -158,14 +173,15 @@ def scrape_products_ab(landing_page, url, products, exceptions):
     Breaks when there are no more product links provided.
 
     Parameters:
-        TODO
-        url (str): The category url that will be parsed for all its products' data to be scraped.
-        products (Queue): A queue to temporarily hold the data, because of thread locking.
+            TODO
+            url (str): The category url that will be parsed for all its products' data to be scraped.
+            products (Queue): A queue to temporarily hold the data, because of thread locking.
     """
     try:
         response = urlopen(url)
         data_json = json.loads(response.read())
-        data = [item for item in data_json["data"]["categoryProductSearch"]["products"]]
+        data = [item for item in data_json["data"]
+                ["categoryProductSearch"]["products"]]
 
         for entry in data:
             price_per_unit = (
@@ -187,7 +203,8 @@ def scrape_products_ab(landing_page, url, products, exceptions):
                 .replace("~", "")
             )
 
-            product_name = entry["manufacturerName"] + " " if entry["manufacturerName"] != "-" else ""
+            product_name = entry["manufacturerName"] + \
+                " " if entry["manufacturerName"] != "-" else ""
 
             if price_per_unit:
                 try:
@@ -201,15 +218,20 @@ def scrape_products_ab(landing_page, url, products, exceptions):
                 price_per_unit = 0.00
                 metric_unit = None
 
+            starting_price = entry["price"]["unitPrice"]
+            final_price = None if entry["price"]["discountedPriceFormatted"] is None else entry["price"]["discountedPriceFormatted"].replace(
+                "€", "").replace(",", ".").replace("~", "").strip()
+
             new_row = {
                 "code": entry["code"],
                 "store": "ΑΒ Βασιλόπουλος",
                 "link": landing_page + entry["url"],
                 "product_name": product_name + entry["name"],
-                "flat_price": entry["price"]["discountedPriceFormatted"].replace("€", "").replace(",", ".").replace("~", "").strip(),
+                "starting_price": starting_price,
+                "final_price": float(final_price),
                 "price_per_unit": price_per_unit,
                 "metric_unit": metric_unit,
-            }
+                "discounted": 0 if final_price is not None and starting_price == float(final_price) else 1}
             products.put(new_row)
     except urllib.error.URLError as e:
         exceptions.append(url)
@@ -220,7 +242,8 @@ def scrape_product_exceptions_ab_recursive(exceptions, products):
     exceptions_new = []
     for url in exceptions:
         try:
-            scrape_products_ab("https://www.ab.gr", url, products, exceptions_new)
+            scrape_products_ab("https://www.ab.gr", url,
+                               products, exceptions_new)
         except (urllib.error.URLError, KeyError):
             exceptions.append(url)
 

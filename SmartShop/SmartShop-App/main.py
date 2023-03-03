@@ -12,11 +12,14 @@ exceptions = []
 database = "database.db"
 products = queue.Queue()
 start_time = time.time()
-data = pd.DataFrame(columns=["code", "store", "link", "product_name", "flat_price", "price_per_unit", "metric_unit"])
+data = pd.DataFrame(columns=["code", "store", "link", "product_name", "starting_price",
+                    "final_price", "price_per_unit", "metric_unit", "discounted"])
 
-categories = scrape_helpers.scrape_categories("https://www.sklavenitis.gr/", "https://www.sklavenitis.gr/katigories/")
+categories = scrape_helpers.scrape_categories(
+    "https://www.sklavenitis.gr/", "https://www.sklavenitis.gr/katigories/")
 for category in categories:
-    thread = threading.Thread(target=scrape_helpers.scrape_products, args=("https://www.sklavenitis.gr/", category, products))
+    thread = threading.Thread(target=scrape_helpers.scrape_products, args=(
+        "https://www.sklavenitis.gr/", category, products))
     threads.append(thread)
     thread.start()
 
@@ -41,7 +44,9 @@ for index, row in categories_df.iterrows():
 
 scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products)
 while not products.empty():
-    data = pd.concat([data, pd.DataFrame(products.get(), index=[0])], ignore_index=True)
+    data = pd.concat(
+        [data, pd.DataFrame(products.get(), index=[0])], ignore_index=True)
+
 data = data.sort_values("price_per_unit", ascending=True)
 data = data.drop_duplicates()
 

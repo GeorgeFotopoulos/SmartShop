@@ -51,7 +51,7 @@ def insert_data(connection: sqlite3.Connection, data: pandas.DataFrame):
     """
 
     connection.execute(
-        "CREATE TABLE products (code TEXT PRIMARY KEY, store TEXT, link TEXT, product_name TEXT, flat_price REAL, price_per_unit REAL, metric_unit TEXT)")
+        "CREATE TABLE products (code TEXT PRIMARY KEY, store TEXT, link TEXT, product_name TEXT, starting_price REAL, final_price REAL, price_per_unit REAL, metric_unit TEXT, discounted BIT)")
     connection.commit()
     data.to_sql("products", connection, if_exists="append", index=False)
 
