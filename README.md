@@ -1,5 +1,5 @@
 # Smart Shop
-___
+
 ### Task List
 
 -   Create a products_history table, in order to keep the history prices of each product
