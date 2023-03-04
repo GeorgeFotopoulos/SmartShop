@@ -15,11 +15,11 @@ def scrape_categories(landing_page, categories_page) -> List[str]:
     Parses the categories within each store, in order to get the links to all categories.
 
     Parameters:
-            landing_page (Literal): Indicates the landing page of a particular store.
-            categories_page (Literal): Indicates the categories page within the website.
+        landing_page (Literal): Indicates the landing page of a particular store.
+        categories_page (Literal): Indicates the categories page within the website.
 
     Returns:
-            TODO
+        TODO
     """
 
     categories = []
@@ -45,9 +45,9 @@ def scrape_products(prefix, category, products):
     Breaks when there are no more product links provided.
 
     Parameters:
-            prefix (Literal): The category url that contains all objects that will be scraped for data.
-            category (str): A particular category that will be parsed for all its products' data to be scraped.
-            products (Queue): A queue to temporarily hold the data, because of thread locking.
+        prefix (Literal): The category url that contains all objects that will be scraped for data.
+        category (str): A particular category that will be parsed for all its products' data to be scraped.
+        products (Queue): A queue to temporarily hold the data, because of thread locking.
     """
 
     i = 1
@@ -74,9 +74,9 @@ def scrape_data(prefix, products, product):
     Scrapes product link, name, flat price and price per unit.
 
     Parameters:
-            prefix (Literal): The prefix to add to the url for each particular product.
-            products (Queue): A queue to temporarily hold the data, because of thread locking.
-            product (BeautifulSoup): A particular product's soup variable, to extract the data from.
+        prefix (Literal): The prefix to add to the url for each particular product.
+        products (Queue): A queue to temporarily hold the data, because of thread locking.
+        product (BeautifulSoup): A particular product's soup variable, to extract the data from.
     """
 
     element = product.find(
@@ -145,10 +145,10 @@ def scrape_categories_ab(url):
     Parses the categories within each store, in order to get the links to all categories.
 
     Parameters:
-            landing_page (Literal): Indicates the landing page of a particular store.
+        landing_page (Literal): Indicates the landing page of a particular store.
 
     Returns:
-            TODO
+        TODO
     """
 
     categories = pandas.DataFrame(columns=["category", "pages"])
@@ -171,9 +171,9 @@ def scrape_products_ab(landing_page, url, products, exceptions):
     Breaks when there are no more product links provided.
 
     Parameters:
-            TODO
-            url (str): The category url that will be parsed for all its products' data to be scraped.
-            products (Queue): A queue to temporarily hold the data, because of thread locking.
+        TODO
+        url (str): The category url that will be parsed for all its products' data to be scraped.
+        products (Queue): A queue to temporarily hold the data, because of thread locking.
     """
     try:
         response = urlopen(url)
@@ -240,7 +240,7 @@ def scrape_products_ab(landing_page, url, products, exceptions):
 
 
 def scrape_product_exceptions_ab_recursive(exceptions, products):
-    """TODO"""
+    """ TODO """
     exceptions_new = []
     for url in exceptions:
         try:
