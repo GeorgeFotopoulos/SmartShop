@@ -31,5 +31,6 @@ def create_excel(data):
         adjusted_width = max_length + 1
         worksheet.column_dimensions[column_letter].width = adjusted_width
 
-    desktop_path = os.path.join(os.path.join(os.environ["USERPROFILE"]), "Desktop")
+    desktop_path = os.path.join(os.path.join(
+        os.environ["USERPROFILE"]), "Desktop")
     workbook.save(desktop_path + "/products.xlsx")

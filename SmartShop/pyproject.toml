@@ -1,4 +1,0 @@
-[tool.black]
-tab-width = 4
-use-tabs = true
-line-length = 160

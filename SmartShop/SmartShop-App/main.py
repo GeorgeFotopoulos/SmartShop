@@ -12,14 +12,17 @@ exceptions = []
 database = "database.db"
 products = queue.Queue()
 start_time = time.time()
-data = pd.DataFrame(columns=["code", "store", "link", "product_name", "starting_price", "final_price", "price_per_unit", "metric_unit", "discounted"])
+data = pd.DataFrame(columns=["code", "store", "link", "product_name",
+                    "starting_price", "final_price", "price_per_unit", "metric_unit", "discounted"])
 
-categories = scrape_helpers.scrape_categories("https://www.sklavenitis.gr/", "https://www.sklavenitis.gr/katigories/")
+categories = scrape_helpers.scrape_categories(
+    "https://www.sklavenitis.gr/", "https://www.sklavenitis.gr/katigories/")
 total_progress = len(categories)
 completed_progress = 0
 
 for category in categories:
-    thread = threading.Thread(target=scrape_helpers.scrape_products, args=("https://www.sklavenitis.gr/", category, products))
+    thread = threading.Thread(target=scrape_helpers.scrape_products, args=(
+        "https://www.sklavenitis.gr/", category, products))
     threads.append(thread)
     thread.start()
 
@@ -41,7 +44,8 @@ while threads:
 
 duration_seconds = time.time() - start_time
 minutes, seconds = divmod(duration_seconds, 60)
-print(f"Scraping Σκλαβενίτης complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
+print(
+    f"Scraping Σκλαβενίτης complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
 
 start_time = time.time()
 categories_df = scrape_helpers.scrape_categories_ab(
@@ -65,12 +69,14 @@ for index, row in categories_df.iterrows():
         progress_bar_length = 50
         filled_length = int(progress * progress_bar_length)
         bar = "#" * filled_length + "-" * (progress_bar_length - filled_length)
-        print(f"\rScraping ΑΒ Βασιλόπουλος... [{bar}] {int(progress * 100)}%", end="")
+        print(
+            f"\rScraping ΑΒ Βασιλόπουλος... [{bar}] {int(progress * 100)}%", end="")
         time.sleep(random.randint(2, 3))
 
 scrape_helpers.scrape_product_exceptions_ab_recursive(exceptions, products)
 while not products.empty():
-    data = pd.concat([data, pd.DataFrame(products.get(), index=[0])], ignore_index=True)
+    data = pd.concat(
+        [data, pd.DataFrame(products.get(), index=[0])], ignore_index=True)
 
 data = data.drop_duplicates()
 
@@ -81,4 +87,5 @@ database_helpers.close_connection(connection)
 
 duration_seconds = time.time() - start_time
 minutes, seconds = divmod(duration_seconds, 60)
-print(f"Scraping ΑΒ Βασιλόπουλος complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
+print(
+    f"Scraping ΑΒ Βασιλόπουλος complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
