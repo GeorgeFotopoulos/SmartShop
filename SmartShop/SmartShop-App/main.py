@@ -3,7 +3,7 @@ import database_helpers
 import pandas as pd
 import scrape_helpers
 
-data = pd.DataFrame(columns=["code", "store", "link", "product_name",
+""" data = pd.DataFrame(columns=["code", "store", "link", "product_name",
                     "starting_price", "final_price", "price_per_unit", "metric_unit", "discounted"])
 
 # Scrape the data
@@ -19,10 +19,13 @@ while not products_ab.empty():
         [data, pd.DataFrame(products_ab.get(), index=[0])], ignore_index=True)
 
 data = data.drop_duplicates()
+connection = database_helpers.create_database_connection("database.db")
+database_helpers.create_products(connection, data)
+database_helpers.close_database_connection(connection) """
 
 # Insert the data into the database
 connection = database_helpers.create_database_connection("database.db")
-database_helpers.create_products(connection, data)
-database_helpers.create_correlations(
-    connection, correlation_helpers.get_correlations(database_helpers.get_all_products(connection)))
+products = database_helpers.get_all_products(connection)
+correlations = correlation_helpers.get_correlations(products)
+database_helpers.create_correlations(connection, correlations)
 database_helpers.close_database_connection(connection)
