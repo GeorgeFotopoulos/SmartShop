@@ -52,7 +52,7 @@ def scrape_sklavenitis():
     duration_seconds = time.time() - start_time
     minutes, seconds = divmod(duration_seconds, 60)
     print(
-        f"Scraping Σκλαβενίτης complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
+        f"\nScraping Σκλαβενίτης complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
     return products_sklavenitis
 
 
@@ -215,7 +215,7 @@ def scrape_ab():
     duration_seconds = time.time() - start_time
     minutes, seconds = divmod(duration_seconds, 60)
     print(
-        f"Scraping ΑΒ Βασιλόπουλος complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
+        f"\nScraping ΑΒ Βασιλόπουλος complete, runtime: {int(minutes)} minutes, {int(seconds)} seconds")
     return products_ab
 
 
