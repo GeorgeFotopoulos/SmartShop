@@ -37,13 +37,14 @@ def get_correlations_sklavenitis(data):
         products_sklavenitis['product_name'])
     ab_vectors = vectorizer.transform(products_ab['product_name'])
 
-    # Compute the similarity matrix between the products in each store
-    similarity_matrix = cosine_similarity(sklavenitis_vectors, ab_vectors)
+    # Train a k-NN classifier on the similarity matrix
+    knn = KNeighborsClassifier(n_neighbors=5)
+    knn.fit(ab_vectors, products_ab['code'])
 
     # Find the best match for each product in sklavenitis
     for i, row in products_sklavenitis.iterrows():
-        best_match_index = np.argmax(similarity_matrix[i])
-        best_match_code = products_ab.iloc[best_match_index]['code']
+        sklavenitis_vector = vectorizer.transform([row['product_name']])
+        best_match_code = knn.predict(sklavenitis_vector)[0]
         correlations_dict[row['code']] = best_match_code
 
     return correlations_dict
