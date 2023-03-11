@@ -77,7 +77,7 @@ def create_products(connection: sqlite3.Connection, data: pd.DataFrame, scan_dat
     # Check if the new data has any changes to price_per_unit or final_price compared to the existing data
     merged_data = pd.merge(
         data, existing_data[['code', 'starting_price']], how='left', on='code')
-    changes = merged_data[merged_data['starting_price']
+    changes = merged_data[merged_data['starting_price_x']
                           != merged_data['starting_price_y']]
     if changes.empty:
         return
