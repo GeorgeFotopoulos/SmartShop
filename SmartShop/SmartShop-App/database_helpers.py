@@ -75,13 +75,12 @@ def create_products(connection: sqlite3.Connection, data: pd.DataFrame, scan_dat
         f"SELECT * FROM products_history WHERE code IN {tuple(data['code'].tolist())}", connection)
 
     # Check if the new data has any changes to price_per_unit or final_price compared to the existing data
-    if not existing_data.empty:
-        merged_data = pd.merge(data, existing_data[[
-                               'code', 'price_per_unit', 'final_price']], how='left', on='code')
-        changes = merged_data[(merged_data['price_per_unit'] != merged_data['price_per_unit_y']) | (
-            merged_data['final_price'] != merged_data['final_price_y'])]
-        if changes.empty:
-            return
+    merged_data = pd.merge(
+        data, existing_data[['code', 'starting_price']], how='left', on='code')
+    changes = merged_data[merged_data['starting_price']
+                          != merged_data['starting_price_y']]
+    if changes.empty:
+        return
 
     # create products table
     connection.execute("DROP TABLE IF EXISTS products;")
