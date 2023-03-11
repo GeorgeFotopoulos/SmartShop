@@ -1,7 +1,12 @@
+import io
 import os
 import sqlite3
 
 import pandas as pd
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 
 
 def open_database_connection(database):
@@ -128,3 +133,34 @@ def create_correlations(connection: sqlite3.Connection, data: dict):
     df.to_sql("correlations", connection, index=True,
               dtype={'key': 'TEXT', 'value': 'TEXT'})
     connection.commit()
+
+
+def upload_file(database_path: str, credentials_path: str, parent_folder_id: str):
+    # Set the credentials
+    creds = service_account.Credentials.from_service_account_file(
+        credentials_path)
+
+    # Set the API version and create the Drive API client
+    version = 'v3'
+    drive_service = build('drive', version, credentials=creds)
+
+    # Set the name of the file to upload and its path
+    filename = os.path.basename(database_path)
+
+    # Search for the file with the same name and parent folder ID
+    query = f"name='{filename}' and parents in '{parent_folder_id}' and trashed=false"
+    results = drive_service.files().list(
+        q=query, fields="nextPageToken, files(id, name)").execute()
+    items = results.get("files", [])
+
+    # Delete any existing files with the same name
+    for item in items:
+        drive_service.files().delete(fileId=item["id"]).execute()
+        print(f"Deleted file: {item['name']} ({item['id']})")
+
+    # Upload the new file to Google Drive
+    file_metadata = {'name': filename, 'parents': [parent_folder_id]}
+    media = MediaFileUpload(database_path, mimetype='application/vnd.sqlite3')
+    file = drive_service.files().create(
+        body=file_metadata, media_body=media, fields='id').execute()
+    print(f"Uploaded file: {filename} ({file['id']})")
