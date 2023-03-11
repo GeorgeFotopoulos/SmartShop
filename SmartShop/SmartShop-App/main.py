@@ -2,21 +2,8 @@ from datetime import date
 
 import correlation_helpers
 import database_helpers
-import firebase_helpers
 import pandas as pd
 import scrape_helpers
-
-
-def main_firebase():
-    connection = database_helpers.open_database_connection("database.db")
-    data = database_helpers.get_all_products(connection)
-    correlations = correlation_helpers.get_correlations(data)
-    database_helpers.close_database_connection(connection)
-
-    database = firebase_helpers.open_database_connection()
-    firebase_helpers.create_correlations(database, correlations)
-    firebase_helpers.create_products(database, data)
-    firebase_helpers.close_database_connection(database)
 
 
 def main_sqlite():
@@ -48,5 +35,4 @@ def main_sqlite():
     print("All operations finished successfully.")
 
 
-# main_firebase()
-# main_sqlite()
+main_sqlite()
