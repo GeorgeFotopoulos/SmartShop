@@ -4,17 +4,7 @@ import sqlite3
 import pandas as pd
 
 
-def drop_database(database):
-    """Drops and recreates the database.
-
-    Args:
-        database (Literal): The database name.
-    """
-    if os.path.exists(database):
-        os.remove(database)
-
-
-def create_database_connection(database):
+def open_database_connection(database):
     """Creates a connection to the specified database.
 
     Args:

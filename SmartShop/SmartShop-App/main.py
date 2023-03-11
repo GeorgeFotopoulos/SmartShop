@@ -8,7 +8,7 @@ import scrape_helpers
 
 
 def main_firebase():
-    connection = database_helpers.create_database_connection("database.db")
+    connection = database_helpers.open_database_connection("database.db")
     data = database_helpers.get_all_products(connection)
     correlations = correlation_helpers.get_correlations(data)
     database_helpers.close_database_connection(connection)
@@ -20,7 +20,7 @@ def main_firebase():
 
 
 def main_sqlite():
-    connection = database_helpers.create_database_connection("database.db")
+    connection = database_helpers.open_database_connection("database.db")
 
 # data = database_helpers.get_all_products(connection)
     data = pd.DataFrame(columns=["code", "store", "link", "product_name",
