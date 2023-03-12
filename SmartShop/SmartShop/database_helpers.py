@@ -1,11 +1,10 @@
-import io
 import os
 import sqlite3
+from datetime import date
 
 import pandas as pd
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 
@@ -53,10 +52,10 @@ def create_history_table(connection: sqlite3.Connection):
     connection.commit()
 
 
-def create_products(connection: sqlite3.Connection, data: pd.DataFrame, scan_date: str):
+def create_products(connection: sqlite3.Connection, data: pd.DataFrame):
     """Create a 'products' table in the database and write data to it.
     Then insert a copy of data with the additional scan date column to products_history table
-    if the product code is the same but the price_per_unit or the final_price has changed.
+    if the product code is the same but the starting_price has changed.
 
     Args:
         connection (sqlite3.Connection): A connection to the SQLite database.
@@ -69,11 +68,12 @@ def create_products(connection: sqlite3.Connection, data: pd.DataFrame, scan_dat
     existing_data = pd.read_sql_query(
         f"SELECT * FROM products_history WHERE code IN {tuple(data['code'].tolist())}", connection)
 
-    # Check if the new data has any changes to price_per_unit or final_price compared to the existing data
+    # Check if the new data has any changes to starting_price compared to the existing data
     merged_data = pd.merge(
         data, existing_data[['code', 'starting_price']], how='left', on='code')
-    changes = merged_data[merged_data['starting_price_x']
-                          != merged_data['starting_price_y']]
+    changes = merged_data[(merged_data['starting_price_x'] != merged_data['starting_price_y']) & (
+        merged_data['code'] == data['code'].iloc[0])]
+
     if changes.empty:
         return
 
@@ -92,7 +92,44 @@ def create_products(connection: sqlite3.Connection, data: pd.DataFrame, scan_dat
     connection.commit()
 
     # insert data with scan date to products_history table
-    data['scan_date'] = scan_date
+    data['scan_date'] = date.today().strftime("%Y-%m-%d")
+    data.to_sql("products_history", connection, if_exists="append", index=False, dtype={
+        'code': 'TEXT',
+        'store': 'TEXT',
+        'link': 'TEXT',
+        'product_name': 'TEXT',
+        'starting_price': 'REAL',
+        'final_price': 'REAL',
+        'price_per_unit': 'REAL',
+        'metric_unit': 'TEXT',
+        'discounted': 'INTEGER',
+        'scan_date': 'DATE'})
+    connection.commit()
+
+
+def create_products_history(connection: sqlite3.Connection, data: pd.DataFrame):
+    """Insert a copy of data with the additional scan date column to products_history table
+    if the product code is the same but the starting_price has changed.
+
+    Args:
+        connection (sqlite3.Connection): A connection to the SQLite database.
+        data (pd.DataFrame): The data that will be saved in the database.
+        scan_date (str): The date the data was scanned in yyyy-mm-dd format.
+    """
+    create_history_table(connection)  # create history table if not exist
+
+    # Get existing data for products with same code from products_history table
+    existing_data = pd.read_sql_query(
+        f"SELECT * FROM products_history WHERE code = '{data['code'].iloc[0]}'", connection)
+
+    # Check if the new data has any changes to starting_price compared to the existing data
+    if not existing_data.empty:
+        starting_price_match = existing_data['starting_price'].iloc[0] == data['starting_price'].iloc[0]
+        if starting_price_match:
+            return
+
+    # insert data with scan date to products_history table
+    data['scan_date'] = date.today().strftime("%Y-%m-%d")
     data.to_sql("products_history", connection, if_exists="append", index=False, dtype={
         'code': 'TEXT',
         'store': 'TEXT',

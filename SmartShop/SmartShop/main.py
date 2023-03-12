@@ -1,5 +1,3 @@
-from datetime import date
-
 import correlation_helpers
 import database_helpers
 import pandas as pd
@@ -8,6 +6,7 @@ import scrape_helpers
 connection = database_helpers.open_database_connection("database.db")
 
 # data = database_helpers.get_all_products(connection)
+# database_helpers.create_products_history(connection, data)
 data = pd.DataFrame(columns=["code", "store", "link", "product_name",
                              "starting_price", "final_price", "price_per_unit", "metric_unit", "discounted"])
 
@@ -22,8 +21,7 @@ while not products_ab.empty():
     data = pd.concat(
         [data, pd.DataFrame(products_ab.get(), index=[0])], ignore_index=True)
 data = data.drop_duplicates()
-database_helpers.create_products(
-    connection, data, date.today().strftime("%Y-%m-%d"))
+database_helpers.create_products(connection, data)
 print("Creating product correlations...")
 correlations = correlation_helpers.get_correlations(data)
 database_helpers.create_correlations(connection, correlations)
